@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="km">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#111827">
+<title>RaaVid AI Story Summary Tool</title>
+<style>
+:root{color-scheme:dark;--bg:#0b1020;--panel:#151d31;--line:#2b3650;--text:#f4f7ff;--muted:#aab5cc;--accent:#7c5cff;--accent2:#21c6a8}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(ellipse at top,#1c2850 0%,var(--bg) 55%);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.65}
+main{max-width:780px;margin:auto;padding:22px 15px 42px}
+header{text-align:center;padding:12px 0 22px}
+.logo{display:inline-flex;align-items:center;justify-content:center;width:58px;height:58px;border-radius:18px;background:linear-gradient(135deg,var(--accent),#24c7b7);font-size:25px;font-weight:900;box-shadow:0 10px 30px #0005}
+h1{font-size:clamp(25px,6vw,36px);margin:12px 0 4px;line-height:1.25}
+.subtitle{color:var(--muted);margin:0}
+.tag{display:inline-block;margin-top:12px;padding:4px 10px;border:1px solid #3e4b68;border-radius:999px;color:#d9e3ff;font-size:12px}
+.card{background:rgba(21,29,49,.94);border:1px solid var(--line);border-radius:18px;padding:17px;margin:13px 0;box-shadow:0 12px 30px #0002}
+h2{font-size:18px;margin:0 0 10px}
+p{margin:7px 0}
+.hint{color:var(--muted);font-size:13px}
+label{display:block;font-weight:650;margin:10px 0 6px}
+input[type=file],textarea,input[type=text]{width:100%;font:inherit;color:var(--text);background:#0b1224;border:1px solid #394663;border-radius:12px;padding:12px}
+input[type=file]{font-size:14px}
+textarea{min-height:170px;resize:vertical;line-height:1.7}
+button{font:inherit;font-weight:700;border:0;border-radius:12px;padding:12px 15px;cursor:pointer}
+.primary{background:linear-gradient(110deg,var(--accent),#5b8cff);color:white;width:100%;margin-top:12px}
+.secondary{background:#25324c;color:white;border:1px solid #415171}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.actions button{flex:1;min-width:125px}
+video{display:none;width:100%;max-height:350px;background:#05070c;border-radius:12px;margin-top:12px}
+.output{white-space:pre-wrap;overflow-wrap:anywhere;background:#0b1224;border:1px solid #34415d;border-radius:12px;padding:13px;min-height:75px}
+.notice{border-left:4px solid var(--accent2);padding:10px 12px;background:#102b31;border-radius:8px;font-size:14px}
+ol,ul{padding-left:23px;margin:8px 0}
+footer{text-align:center;color:var(--muted);font-size:12px;padding:16px 0}
+.smallbtn{font-size:13px;padding:8px 11px}
+@media(min-width:600px){main{padding-top:30px}.card{padding:21px}}
+</style>
+</head>
+<body>
+<main>
+<header>
+  <div class="logo">RV</div>
+  <h1>RaaVid AI Story Summary</h1>
+  <p class="subtitle">ឧបករណ៍សាកល្បងសម្រាប់សម្រាយរឿងជាភាសាខ្មែរ</p>
+  <span class="tag">DEMO • មិនត្រូវការ API key</span>
+</header>
+
+<section class="card">
+  <h2>១. បញ្ចូលវីដេអូ</h2>
+  <p class="hint">ជ្រើសរើសវីដេអូពី iPhone ដើម្បីមើលជាមុន។ វីដេអូស្ថិតនៅលើឧបករណ៍របស់អ្នកក្នុងទំព័រនេះ។</p>
+  <label for="videoFile">ជ្រើសរើសឯកសារវីដេអូ</label>
+  <input id="videoFile" type="file" accept="video/*">
+  <video id="preview" controls playsinline></video>
+  <p id="fileInfo" class="hint" aria-live="polite">មិនទាន់បានជ្រើសរើសវីដេអូទេ។</p>
+  <div class="notice">ចំណាំ៖ កំណែសាកល្បងនេះមិនអាចស្តាប់សំឡេងក្នុងវីដេអូ ឬបម្លែងសំឡេងទៅជាអត្ថបទដោយស្វ័យប្រវត្តិបានទេ។ សូមបញ្ចូលអត្ថបទ transcript នៅផ្នែកខាងក្រោម។</div>
+</section>
+
+<section class="card">
+  <h2>២. បញ្ចូលអត្ថបទរឿង</h2>
+  <p class="hint">បិទភ្ជាប់អត្ថបទដែលបានសរសេរ ឬ transcript ពីវីដេអូ។ អ្នកអាចសរសេរជាភាសាខ្មែរ ឬភាសាផ្សេងៗបាន។</p>
+  <label for="storyText">អត្ថបទរឿង / Transcript</label>
+  <textarea id="storyText" placeholder="បញ្ចូលអត្ថបទរឿងនៅទីនេះ…&#10;&#10;ឧទាហរណ៍៖ ថ្ងៃមួយ មានបុរសម្នាក់បានរកឃើញប្រអប់អាថ៌កំបាំងមួយ..."></textarea>
+  <div class="actions">
+    <button class="secondary" id="clearBtn" type="button">លុបអត្ថបទ</button>
+    <button class="secondary" id="sampleBtn" type="button">សាកល្បងអត្ថបទគំរូ</button>
+  </div>
+</section>
+
+<section class="card">
+  <h2>៣. សម្រាយរឿងជាខ្មែរ</h2>
+  <p class="hint">ចុចប៊ូតុងខាងក្រោម។ កំណែនេះបង្កើតសេចក្ដីសង្ខេបមូលដ្ឋានពីប្រយោគក្នុងអត្ថបទ ដោយដំណើរការនៅក្នុង browser ប៉ុណ្ណោះ—មិនមែនជា AI ពិតទេ។</p>
+  <button class="primary" id="summarizeBtn" type="button">✨ សម្រាយរឿងជាខ្មែរ</button>
+  <label for="summary">លទ្ធផលសម្រាយ</label>
+  <div id="summary" class="output" aria-live="polite">សេចក្ដីសម្រាយនឹងបង្ហាញនៅទីនេះ។</div>
+  <div class="actions">
+    <button class="secondary" id="copyBtn" type="button">ចម្លងសេចក្ដីសម្រាយ</button>
+    <button class="secondary" id="downloadBtn" type="button">រក្សាទុកជា TXT</button>
+  </div>
+  <p id="status" class="hint" aria-live="polite"></p>
+</section>
+
+<section class="card">
+  <h2>របៀបប្រើដោយមិនបង់ប្រាក់</h2>
+  <ol>
+    <li>បើកឯកសារ HTML នេះនៅលើ iPhone Safari ឬ browser ដែលគាំទ្រ JavaScript។</li>
+    <li>ចុច <b>ជ្រើសរើសឯកសារវីដេអូ</b> ដើម្បីមើលវីដេអូជាមុន (ជំហាននេះអាចរំលងបាន)។</li>
+    <li>បិទភ្ជាប់ transcript ឬអត្ថបទរឿងទៅក្នុងប្រអប់។</li>
+    <li>ចុច <b>សម្រាយរឿងជាខ្មែរ</b> រួចចម្លង ឬរក្សាទុកលទ្ធផលជា TXT។</li>
+  </ol>
+  <p class="notice">ការប្រើឯកសារនេះមិនទាមទារការជាវ ឬ API key ទេ។ មុខងារ AI ពិតៗដូចជា Auto Transcript ពីសំឡេង និងសម្រាយដោយ AI ត្រូវការម៉ូដែល AI ឬសេវាកម្មខាងក្រៅ ដែលអាចមានកម្រិតឥតគិតថ្លៃ ឬការចំណាយ។</p>
+</section>
+<footer>RaaVid • ឯកសារសាកល្បងក្នុង browser • មិនបញ្ជូនអត្ថបទទៅម៉ាស៊ីនមេ</footer>
+</main>
+<script>
+(() => {
+ const fileInput=document.getElementById('videoFile');
+ const video=document.getElementById('preview');
+ const fileInfo=document.getElementById('fileInfo');
+ const story=document.getElementById('storyText');
+ const summary=document.getElementById('summary');
+ const status=document.getElementById('status');
+ let currentUrl=null;
+ fileInput.addEventListener('change',()=>{
+   if(currentUrl){URL.revokeObjectURL(currentUrl);currentUrl=null}
+   const file=fileInput.files && fileInput.files[0];
+   if(!file){video.style.display='none';fileInfo.textContent='មិនទាន់បានជ្រើសរើសវីដេអូទេ។';return}
+   if(!file.type.startsWith('video/')){fileInfo.textContent='សូមជ្រើសរើសឯកសារវីដេអូ។';return}
+   currentUrl=URL.createObjectURL(file);video.src=currentUrl;video.style.display='block';
+   fileInfo.textContent='ឯកសារ៖ '+file.name+' • ទំហំ៖ '+(file.size/1024/1024).toFixed(1)+' MB';
+ });
+ function splitSentences(text){
+   return text.replace(/\r/g,'').split(/(?<=[។.!?！？])\s+|\n+/u).map(s=>s.trim()).filter(Boolean);
+ }
+ function makeSummary(text){
+   const cleaned=text.trim();
+   if(!cleaned)return '';
+   const sentences=splitSentences(cleaned);
+   if(sentences.length<=3)return 'សេចក្ដីសម្រាយ៖\n'+cleaned;
+   const target=Math.max(3,Math.ceil(sentences.length*0.35));
+   const chosen=[];
+   const indexes=[0, Math.floor((sentences.length-1)/2), sentences.length-1];
+   for(const i of indexes){if(sentences[i]&&!chosen.includes(sentences[i]))chosen.push(sentences[i])}
+   if(chosen.length<target){
+     for(let i=1;i<sentences.length-1&&chosen.length<target;i++){
+       if(!chosen.includes(sentences[i]))chosen.push(sentences[i]);
+     }
+   }
+   chosen.sort((a,b)=>sentences.indexOf(a)-sentences.indexOf(b));
+   return 'សេចក្ដីសម្រាយ៖\n'+chosen.join(' ')+'\n\nចំណាំ៖ នេះជាសេចក្ដីសង្ខេបសាកល្បងដោយជ្រើសរើសប្រយោគពីអត្ថបទដើម មិនមែនជាការវិភាគដោយ AI ទេ។ សូមអានពិនិត្យ និងកែសម្រួលមុនប្រើ។';
+ }
+ document.getElementById('summarizeBtn').addEventListener('click',()=>{
+   const result=makeSummary(story.value);
+   summary.textContent=result||'សូមបញ្ចូលអត្ថបទរឿងជាមុនសិន។';
+   status.textContent=result?'បានបង្កើតសេចក្ដីសម្រាយសាកល្បងរួចរាល់។':'';
+ });
+ document.getElementById('clearBtn').addEventListener('click',()=>{
+   story.value='';summary.textContent='សេចក្ដីសម្រាយនឹងបង្ហាញនៅទីនេះ។';status.textContent='';
+ });
+ document.getElementById('sampleBtn').addEventListener('click',()=>{
+   story.value='ថ្ងៃមួយ មានយុវជនម្នាក់បានរកឃើញប្រអប់អាថ៌កំបាំងនៅក្នុងព្រៃ។ ពេលគាត់បើកប្រអប់ ពន្លឺចម្លែកមួយបានភ្លឺឡើង ហើយផែនទីចាស់មួយបានលេចចេញមក។ គាត់សម្រេចចិត្តធ្វើដំណើរតាមផែនទី ដើម្បីស្វែងរកកំណប់ដែលគេនិយាយតៗគ្នា។ តាមផ្លូវ គាត់បានជួបមនុស្សចាស់ម្នាក់ដែលព្រមជួយបកស្រាយសញ្ញាលើផែនទី។ ពួកគេត្រូវដោះស្រាយល្បែងជាច្រើន មុនពេលទៅដល់រូងភ្នំ។ នៅទីបំផុត យុវជនបានរកឃើញថា កំណប់ពិតប្រាកដមិនមែនជាមាសទេ ប៉ុន្តែជាសៀវភៅដែលអាចជួយភូមិរបស់គាត់បាន។ គាត់បានយកសៀវភៅត្រឡប់ទៅភូមិ ហើយចែករំលែកចំណេះដឹងដល់អ្នកទាំងអស់គ្នា។';
+   status.textContent='បានដាក់អត្ថបទគំរូ។ ចុចសម្រាយរឿងដើម្បីសាកល្បង។';
+ });
+ document.getElementById('copyBtn').addEventListener('click',async()=>{
+   const text=summary.textContent.trim();
+   if(!text||text==='សេចក្ដីសម្រាយនឹងបង្ហាញនៅទីនេះ។'){status.textContent='សូមបង្កើតសេចក្ដីសម្រាយជាមុនសិន។';return}
+   try{await navigator.clipboard.writeText(text);status.textContent='បានចម្លងសេចក្ដីសម្រាយ។'}
+   catch(e){const range=document.createRange();range.selectNodeContents(summary);const sel=window.getSelection();sel.removeAllRanges();sel.addRange(range);status.textContent='បានជ្រើសរើសអត្ថបទ។ សូមចុច Copy ពីម៉ឺនុយរបស់ iPhone។'}
+ });
+ document.getElementById('downloadBtn').addEventListener('click',()=>{
+   const text=summary.textContent.trim();
+   if(!text||text==='សេចក្ដីសម្រាយនឹងបង្ហាញនៅទីនេះ។'){status.textContent='សូមបង្កើតសេចក្ដីសម្រាយជាមុនសិន។';return}
+   const blob=new Blob(['\ufeff'+text],{type:'text/plain;charset=utf-8'});
+   const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='RaaVid-story-summary.txt';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
+   status.textContent='បានចាប់ផ្ដើមរក្សាទុកឯកសារ TXT។';
+ });
+})();
+</script>
+</body>
+</html>
